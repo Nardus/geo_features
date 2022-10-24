@@ -42,7 +42,7 @@ class LeastCostDistance(CachedEdgeFeature):
         base_resolution = h3_get_resolution(node_names[0])
 
         if resolution < base_resolution:
-            m = f"Resolution must be at least as fine as that of from_hex (i.e., >= {base_resolution}."
+            m = f"Resolution must be at least as fine as that of from_hex (i.e., >= {base_resolution})."
             raise ValueError(m)
             
         if k_distance < 1:
