@@ -1,7 +1,7 @@
 # Functions for calculating geodetic distances between hexagons
 
 import h3
-from pyproj import Geod
+from pyproj import CRS
 
 from .edge_feature import CachedEdgeFeature
 
@@ -20,16 +20,17 @@ class GeodeticDistance(CachedEdgeFeature):
         Restore a previously-saved set of values from disk.
     """
 
-    def __init__(self, node_names):
+    def __init__(self, node_names, crs="WGS84"):
         """
         Parameters
         ----------
         node_names: List of names used to index stored features.
+        crs: A pyproj-compatible coordinate reference system specification (default=WGS84).
         """
         super().__init__(node_names)
         
-        # H3 uses WGS84, see https://h3geo.org/docs/core-library/overview
-        self.geod = Geod(ellps="WGS84")
+        crs = CRS.from_user_input(crs)
+        self.geod = crs.get_geod()
     
     def calculate(self, from_node, to_node):
         """
