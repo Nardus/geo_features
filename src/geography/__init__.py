@@ -1,5 +1,9 @@
 # Functions and classes for calculating geographic features
 
+# Expose submodules:
+from . import climate_data_store
+
+# Expose commonly-used classes and functions directly:
 from .geodetic_distance import GeodeticDistance
 from .least_cost_distance import LeastCostDistance
 
