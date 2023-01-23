@@ -43,7 +43,7 @@ def summarise_raster(raster_file, polygons, column_name, summary_fun):
     vals = DataFrame(vals)
     vals.rename({summary_fun: column_name}, axis=1, inplace=True)
 
-    # Add locations and rename to match sequence annotations
-    vals["location"] = polygons.location.apply(lambda x: f"location{x}")
+    # Add locations
+    vals["location"] = polygons.location
 
     return vals[["location", column_name]]
