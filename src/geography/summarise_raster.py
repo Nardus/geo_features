@@ -26,7 +26,7 @@ def summarise_raster(raster_file, polygons, column_name, summary_fun):
         raster_crs = f.crs
     
     if raster_crs is None:
-        warn("Raster file does not specify a CRS - assuming WGS84")
+        warn("Raster file does not specify a CRS - assuming WGS84", RuntimeWarning, stacklevel=2)
         raster_crs = "WGS84"
         
     polygons.to_crs(raster_crs, inplace=True)
