@@ -2,7 +2,7 @@
 
 from rasterio import transform
 from geopandas import points_from_xy
-from numpy import argmax
+from numpy import argmax, isinf
 
 def find_representative_points(gdf, altitude_raster, altitude_transform,
                                projection_crs, raster_crs="WGS84", increment=1):
@@ -13,7 +13,8 @@ def find_representative_points(gdf, altitude_raster, altitude_transform,
     Parameters
     ----------
     gdf: A geopandas dataframe containing polygons.
-    altitude_raster: A raster, with thresholded locations indicated using negative values.
+    altitude_raster: A raster, with thresholded locations indicated using either infinite or
+                     negative values.
     altitude_transform: The `rasterio` transform for `altitude_raster`.
     projection_crs: Projected CRS to use when finding representative points.
     raster_crs: The CRS used by `altitude_raster`.
@@ -25,6 +26,9 @@ def find_representative_points(gdf, altitude_raster, altitude_transform,
     -------
     A geopandas dataframe with representative points for each polygon.
     """
+    # Simplify representation of thresholded areas
+    altitude_raster[isinf(altitude_raster)] = -1
+    
     # Get representative points - since altitude may be thresholded outside polygons, these
     # *have* to be inside the polygons (so can't use centroids)
     rep_points = gdf.to_crs(projection_crs)
