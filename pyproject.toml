@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "geo_features"
+version = "0.1.0"
+description = "Summarise geographic features relevant to disease spread and surveillance."
+authors = ["Nardus Mollentze <nardus.mollentze@glasgow.ac.uk>"]
+license = "GPL-3.0-only"
+readme = "README.md"
+homepage = "https://github.com/nardus/geo_features"
+repository = "https://github.com/nardus/geo_features"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+numpy = "^1.22.3"
+scikit-image = "^0.19.3"
+ray = "^2.1.0"
+cdsapi = "^0.5.1"
+rioxarray = "^0.13.3"
+cftime = "^1.6.2"
+rasterio = "^1.2.10"
+rasterstats = "^0.17.0"
+geopandas = "^0.11.0"
+h3 = "^3.7.4"
+pyproj = "^3.4.0"
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/nardus/geo_features/issues"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
