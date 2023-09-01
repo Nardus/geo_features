@@ -2,6 +2,7 @@
 
 # Expose submodules:
 from . import climate_data_store
+from . import utils
 
 # Expose commonly-used classes and functions directly:
 from .geodetic_distance import GeodeticDistance

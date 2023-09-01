@@ -23,7 +23,7 @@ rioxarray = "^0.13.3"
 cftime = "^1.6.2"
 rasterio = "^1.2.10"
 rasterstats = "^0.17.0"
-geopandas = "^0.11.0"
+geopandas = "^0.13.2"
 h3 = "^3.7.4"
 pyproj = "^3.4.0"
 
