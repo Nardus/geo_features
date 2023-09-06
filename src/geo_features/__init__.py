@@ -8,5 +8,5 @@ from . import utils
 from .geodetic_distance import GeodeticDistance
 from .least_cost_distance import LeastCostDistance
 
-from .summarise_raster import summarise_raster
+from .summarise_raster import summarise_raster, summarise_categorical_raster
 from .find_representative_points import find_representative_points
