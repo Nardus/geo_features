@@ -5,7 +5,7 @@ from . import climate_data_store
 from . import utils
 
 # Expose commonly-used classes and functions directly:
-from .geodetic_distance import GeodeticDistance
+from .geodetic_distance import CoordinateGeodeticDistance, GeodeticDistance
 from .least_cost_distance import CoordinateLeastCostDistance, LeastCostDistance
 
 from .summarise_raster import summarise_raster, summarise_categorical_raster
