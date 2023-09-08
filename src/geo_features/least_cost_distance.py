@@ -8,9 +8,63 @@ from numpy import zeros as np_zeros
 from .edge_feature import CachedEdgeFeature
 
 
-class LeastCostDistance(CachedEdgeFeature):
+class CoordinateLeastCostDistance(object):
     """
-    A class for calculating least cost distances. 
+    A class for calculating least cost distances from geographic coordinates.
+    
+    Note that this class does not cache results for later use, but does avoid traversing
+    the same areas of the cost surface by re-using calculations from repeated calls.
+    
+    Methods
+    -------
+    get_costs_from_geo(start_points, end_points)
+        Get least cost distances between a set of possible start and end points.
+    """
+    def __init__(self, cost_raster, raster_transform):
+        """
+        Parameters
+        ----------
+        cost_raster: An ndarray to use as the cost surface.
+        raster_transform: `rasterio` coefficients mapping pixel coordinates to the coordinate 
+                           reference system in `cost_raster`.
+        resolution: H3 resolution for calculations.
+        """
+        self.mcp = MCP_Geometric(cost_raster, fully_connected=True)
+        self.raster_transform = raster_transform
+    
+    def get_costs_from_geo(self, start_points, end_points):
+        """
+        Get the least cost path between a set of possible start and end points.
+        
+        Parameters
+        ----------
+        start_points: An iterable of starting coordinates, with each coordinate a (lat, lon) tuple.
+        end_points: An iterable of end coordinates.
+        
+        Returns
+        -------
+        A numpy array of costs, corresponding to each end point (and using the nearest/cheapest 
+        start point).
+        """
+        xy_from = (rowcol(self.raster_transform,
+                   c[1], c[0]) for c in start_points)
+        xy_to = [rowcol(self.raster_transform, c[1], c[0]) for c in end_points]
+
+        cumulative_cost, _ = self.mcp.find_costs(xy_from, xy_to)
+
+        # Unpack [(x1, y1), (x2, y2), ...] into (x_inds, y_inds)
+        end_inds = tuple(zip(*xy_to))
+
+        # Since costs are cumulative, only need to keep values for the end points
+        end_costs = cumulative_cost[end_inds]
+
+        return end_costs
+    
+
+class LeastCostDistance(CachedEdgeFeature, CoordinateLeastCostDistance):
+    """
+    A class for calculating least cost distances on H3 hexagons, using hexagon names to
+    cache results. 
         
     Resolution controls how this is done: if resolution matches that of the H3 hexagon 
     identifiers passed to `get()`, distances will be from between the centres of 
@@ -56,35 +110,6 @@ class LeastCostDistance(CachedEdgeFeature):
         self.resolution = resolution
         self.base_resolution = base_resolution
         self.k_distance = k_distance
-        
-
-    def get_costs_from_geo(self, start_points, end_points):
-        """
-        Get the least cost path between a set of possible start and end points.
-        
-        Parameters
-        ----------
-        start_points: An iterable of starting coordinates, with each coordinate a (lat, lon) tuple.
-        end_points: An iterable of end coordinates.
-        
-        Returns
-        -------
-        A numpy array of costs, corresponding to each end point (and using the nearest/cheapest 
-        start point).
-        """
-        xy_from = (rowcol(self.raster_transform,
-                   c[1], c[0]) for c in start_points)
-        xy_to = [rowcol(self.raster_transform, c[1], c[0]) for c in end_points]
-
-        cumulative_cost, _ = self.mcp.find_costs(xy_from, xy_to)
-
-        # Unpack [(x1, y1), (x2, y2), ...] into (x_inds, y_inds)
-        end_inds = tuple(zip(*xy_to))
-        
-        # Since costs are cumulative, only need to keep values for the end points
-        end_costs = cumulative_cost[end_inds]
-
-        return end_costs
 
     def get_costs_from_h3(self, from_hex, to_hex):
         """

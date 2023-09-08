@@ -13,6 +13,7 @@ def generate_random_lines(polygons, n, random_seed=1, group_column="location"):
     ----------
     polygons: A geopandas dataframe containing polygons.
     n: Number of random connections required between each pair of polygons.
+    random_seed: Random seed to use.
     group_column: Name of a column in polygons to use for grouping.
     
     Returns
