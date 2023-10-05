@@ -55,10 +55,11 @@ def sample_points(polygon_df, n_points, exclusion_zones=None, max_retries=100, s
         n_replacements = invalid_points["polygon_id"].value_counts()
         
         # Sample new points
+        invalid_polygons = polygon_df.loc[n_replacements.index]
+        
         new_points = (
-            polygon_df
-            .loc[n_replacements.index]
-            .assign(geometry=polygon_df.sample_points(n_replacements, seed=seed))
+            invalid_polygons
+            .assign(geometry=invalid_polygons.sample_points(n_replacements, seed=seed))
             .explode(index_parts=False)
             .reset_index()
             .rename(columns={"index": "polygon_id"})
