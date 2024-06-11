@@ -2,8 +2,7 @@
 
 from rasterio.transform import rowcol
 from skimage.graph import MCP_Geometric
-from h3 import h3_get_resolution, k_ring, h3_to_children, h3_to_geo
-from numpy import zeros as np_zeros
+from h3 import h3_get_resolution, h3_to_children, h3_to_geo
 
 from .edge_feature import CachedEdgeFeature
 
@@ -27,7 +26,6 @@ class CoordinateLeastCostDistance(object):
         cost_raster: An ndarray to use as the cost surface.
         raster_transform: `rasterio` coefficients mapping pixel coordinates to the coordinate 
                            reference system in `cost_raster`.
-        resolution: H3 resolution for calculations.
         """
         self.mcp = MCP_Geometric(cost_raster, fully_connected=True)
         self.raster_transform = raster_transform
@@ -46,8 +44,7 @@ class CoordinateLeastCostDistance(object):
         A numpy array of costs, corresponding to each end point (and using the nearest/cheapest 
         start point).
         """
-        xy_from = (rowcol(self.raster_transform,
-                   c[1], c[0]) for c in start_points)
+        xy_from = (rowcol(self.raster_transform, c[1], c[0]) for c in start_points)
         xy_to = [rowcol(self.raster_transform, c[1], c[0]) for c in end_points]
 
         cumulative_cost, _ = self.mcp.find_costs(xy_from, xy_to)

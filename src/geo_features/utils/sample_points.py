@@ -2,7 +2,7 @@
 
 from warnings import warn
 
-def sample_points(polygon_df, n_points, exclusion_zones=None, max_retries=100, seed=None):
+def sample_points(polygon_df, n_points, exclusion_zones=None, buffer=0, max_retries=100, seed=None):
     """
     Sample random points within each polygon, respecting any exclusion zones.
     
@@ -18,6 +18,7 @@ def sample_points(polygon_df, n_points, exclusion_zones=None, max_retries=100, s
     n_points: Number of points to sample within each polygon.
     exclusion_zones: A geopandas dataframe containing polygons defining areas which should not
                      contain any sampled points (optional).
+    buffer: Size of a buffer around exclusion zones where no points should be sampled (optional).
     max_retries: Maximum number of times to try to achieve the desired number of points within
                  each polygon. If this number is exceeded, the function returns the points that
                  were sampled so far, and prints a warning. Not used when exclusion_zones is None.
@@ -47,7 +48,10 @@ def sample_points(polygon_df, n_points, exclusion_zones=None, max_retries=100, s
     exclusion_zones.drop(columns=exclusion_zones.columns.difference(["geometry"]), inplace=True)
     
     # Replace points that fall within exclusion zones
-    invalid_points = points.sjoin(exclusion_zones, predicate="within")
+    # - Using a buffer around the points rather than the exclusion zones themselves,
+    #   under the assumption that there are far fewer points than exclusion zones.
+    buffered_points = points.assign(geometry=points.buffer(buffer))
+    invalid_points = buffered_points.sjoin(exclusion_zones)
     tries = 0
     
     while len(invalid_points) > 0 and tries < max_retries:
@@ -74,12 +78,15 @@ def sample_points(polygon_df, n_points, exclusion_zones=None, max_retries=100, s
         )
         
         # Check again
-        invalid_points = points.sjoin(exclusion_zones, predicate="within")
+        buffered_points = points.assign(geometry=points.buffer(buffer))
+        invalid_points = buffered_points.sjoin(exclusion_zones)
         tries += 1
         
         if len(invalid_points) == 0:
             break
-    else:
+    
+    # Check if max_retries was exceeded
+    if len(invalid_points) != 0:
         n_polygons = len(invalid_points["polygon_id"].unique())
         mean_missing_points = invalid_points["polygon_id"].value_counts().mean()
         warn(
